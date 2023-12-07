@@ -1,3 +1,3 @@
-module github.com/TWolfis/ietfRfc
+module github.com/TWolfis/ietfrfc
 
 go 1.21.5
