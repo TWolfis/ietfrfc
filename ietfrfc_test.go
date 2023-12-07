@@ -26,3 +26,17 @@ func TestRfc(t *testing.T) {
 		t.Errorf("RFC number is incorrect, expected %d, got %s", rfcNumber, rfc.Metadata.Series[0].Value)
 	}
 }
+
+func ExampleGetRFC() {
+	rfcNumber := 1234
+
+	// Get RFC
+	rfc, err := ietfRfc.GetRFC(rfcNumber)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Print RFC Body
+	fmt.Println(rfc.Body)
+}

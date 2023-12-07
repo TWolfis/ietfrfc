@@ -8,20 +8,22 @@ import (
 )
 
 /*
-fetch and handles rfc's
+Download IETF RFCs and their metadata
 */
 
+// The base URLs for retrieving RFC documents and their metadata info
 const (
 	rfcURL = "https://www.rfc-editor.org/rfc/rfc"
 	mdURL  = "https://bib.ietf.org/public/rfc/bibxml/reference.RFC."
 )
 
+// Rfc holds the text body of the requested RFC and the metadata concerning the RFC
 type Rfc struct {
 	Body     string
 	Metadata Reference
 }
 
-// Global function to retrieve RFC and metadata
+// GetRFC fetches the RFC and RFC Metadata by number
 func GetRFC(rfcNumber int) (Rfc, error) {
 	rfc := Rfc{}
 	err := rfc.getR(rfcNumber)
@@ -29,7 +31,7 @@ func GetRFC(rfcNumber int) (Rfc, error) {
 		return rfc, err
 	}
 
-	err = rfc.getMetadata(rfcNumber)
+	err = rfc.getM(rfcNumber)
 	if err != nil {
 		return rfc, err
 	}
@@ -37,7 +39,7 @@ func GetRFC(rfcNumber int) (Rfc, error) {
 	return rfc, nil
 }
 
-// Get the RFC text file
+// getR fetches the RFC
 func (r *Rfc) getR(rfcNumber int) error {
 	// Example: https://www.rfc-editor.org/rfc/rfc791.txt
 	rurl := fmt.Sprintf("%s%d.txt", rfcURL, rfcNumber)
@@ -59,8 +61,8 @@ func (r *Rfc) getR(rfcNumber int) error {
 	return nil
 }
 
-// Get the metadata
-func (r *Rfc) getMetadata(rfcNumber int) error {
+// getM fetches the RFC Metadata
+func (r *Rfc) getM(rfcNumber int) error {
 
 	// Example: https://bib.ietf.org/public/rfc/bibxml/reference.RFC.791.xml
 	murl := fmt.Sprintf("%s%d.xml", mdURL, rfcNumber)
@@ -85,7 +87,7 @@ func (r *Rfc) getMetadata(rfcNumber int) error {
 	return nil
 }
 
-// GetReference, print out the title, publication date and author(s) of the RFC
+// GetReference, prints out the title, publication date and author(s) of the RFC
 func (r Rfc) GetReference() {
 	title := r.Metadata.Front.Title
 	month := r.Metadata.Front.Date.Month
@@ -100,7 +102,7 @@ func (r Rfc) GetReference() {
 	fmt.Println()
 }
 
-// Stringer
+// String prints out the RFC Body
 func (r Rfc) String() string {
 	return fmt.Sprintln(r.Body)
 }
