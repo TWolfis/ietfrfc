@@ -1,17 +1,17 @@
-package ietfRfc_test
+package ietfrfc_test
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/TWolfis/ietfRfc"
+	"github.com/TWolfis/ietfrfc"
 )
 
 func TestRfc(t *testing.T) {
-	rfcNumber := 1234
+	rfcNumber := 2328
 
 	// Test if RFC can be fetched
-	rfc, err := ietfRfc.GetRFC(rfcNumber)
+	rfc, err := ietfrfc.GetRFC(rfcNumber)
 	if err != nil {
 		t.Error(err)
 	}
@@ -21,17 +21,17 @@ func TestRfc(t *testing.T) {
 		t.Error("RFC body is empty")
 	}
 
-	// Test if RFC Number is correct
-	if rfc.Metadata.Series[0].Value != fmt.Sprint(rfcNumber) {
-		t.Errorf("RFC number is incorrect, expected %d, got %s", rfcNumber, rfc.Metadata.Series[0].Value)
+	// Test if RFC Title equals OSPF Version 2
+	if rfc.Title != "OSPF Version 2" {
+		t.Errorf("RFC title is incorrect, expected OSPF Version 2, got %s", rfc.Title)
 	}
 }
 
 func ExampleGetRFC() {
-	rfcNumber := 1234
+	rfcNumber := 2328
 
 	// Get RFC
-	rfc, err := ietfRfc.GetRFC(rfcNumber)
+	rfc, err := ietfrfc.GetRFC(rfcNumber)
 	if err != nil {
 		fmt.Println(err)
 		return
