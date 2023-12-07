@@ -1,17 +1,17 @@
-package ietfrfc_test
+package ietfRfc_test
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/TWolfis/ietfrfc"
+	"github.com/TWolfis/ietfRfc"
 )
 
 func TestRfc(t *testing.T) {
 	rfcNumber := 1234
 
 	// Test if RFC can be fetched
-	rfc, err := ietfrfc.GetRFC(rfcNumber)
+	rfc, err := ietfRfc.GetRFC(rfcNumber)
 	if err != nil {
 		t.Error(err)
 	}

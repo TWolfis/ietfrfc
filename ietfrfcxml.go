@@ -1,4 +1,4 @@
-package ietfrfc
+package ietfRfc
 
 import "encoding/xml"
 
