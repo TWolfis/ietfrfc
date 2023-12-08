@@ -8,7 +8,7 @@ import (
 )
 
 func TestRfc(t *testing.T) {
-	rfcNumber := 2328
+	rfcNumber := 10
 
 	// Test if RFC can be fetched
 	rfc, err := ietfrfc.GetRFC(rfcNumber)

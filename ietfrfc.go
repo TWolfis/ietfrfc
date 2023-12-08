@@ -28,6 +28,11 @@ type RFC struct {
 
 // GetRFC fetches the RFC and RFC Metadata by number
 func GetRFC(rfcNumber int) (RFC, error) {
+
+	if rfcNumber < 1 {
+		return RFC{}, fmt.Errorf("RFC number must be greater than 0")
+	}
+
 	rfc := RFC{}
 	err := rfc.getR(rfcNumber)
 	if err != nil {
@@ -66,10 +71,21 @@ func (r *RFC) getR(rfcNumber int) error {
 
 // getRef fetches the RFC Metadata
 func (r *RFC) getRef(rfcNumber int) error {
+	var rNum string
+	// if the rfcNumber is less than 1000 and bigger than 100, add a leading 0
+	if rfcNumber >= 100 && rfcNumber < 1000 {
+		rNum = fmt.Sprintf("0%d", rfcNumber)
+	} else if rfcNumber >= 10 && rfcNumber < 100 {
+		rNum = fmt.Sprintf("00%d", rfcNumber)
+	} else if rfcNumber < 10 && rfcNumber > 0 {
+		rNum = fmt.Sprintf("000%d", rfcNumber)
+	} else {
+		rNum = fmt.Sprintf("%d", rfcNumber) // if the rfcNumber is bigger than 1000, just add it as is.
+	}
 
 	// Example: "https://www.rfc-editor.org/refs/ref1945.txt"
-	refurl := fmt.Sprintf("%s%d.txt", refURL, rfcNumber)
-
+	refurl := fmt.Sprintf("%s%s.txt", refURL, rNum)
+	fmt.Println(refurl)
 	// Get metadata
 	resp, err := http.Get(refurl)
 	if err != nil {
