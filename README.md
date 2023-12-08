@@ -1,5 +1,5 @@
 # ietfrfc
-[![Go Reference](https://pkg.go.dev/badge/github.com/TWolfis/ietfRfc@v1.0.1.svg)](https://pkg.go.dev/github.com/TWolfis/ietfRfc@v1.0.1)
+[![Go Reference](https://pkg.go.dev/badge/github.com/TWolfis/ietfRfc@v1.0.1.svg)](https://pkg.go.dev/github.com/TWolfis/ietfrfc)
 
 Go module for retrieving IETF RFCs, RFC documents contain technical specifications and organizational notes for the Internet.
 
