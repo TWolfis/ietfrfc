@@ -8,10 +8,10 @@ import (
 )
 
 func TestRfc(t *testing.T) {
-	rfcNumber := 10
+	number := 2328
 
 	// Test if RFC can be fetched
-	rfc, err := ietfrfc.Get(rfcNumber)
+	rfc, err := ietfrfc.Get(number)
 	if err != nil {
 		t.Error(err)
 	}
@@ -29,10 +29,10 @@ func TestRfc(t *testing.T) {
 }
 
 func ExampleGet() {
-	rfcNumber := 2328
+	number := 2328
 
 	// Get
-	rfc, err := ietfrfc.Get(rfcNumber)
+	rfc, err := ietfrfc.Get(number)
 	if err != nil {
 		fmt.Println(err)
 		return
