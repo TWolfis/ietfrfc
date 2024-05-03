@@ -116,7 +116,7 @@ func (r *RFC) getRef(Number int, c chan error) {
 	t := bt[0]
 
 	// set chars to trim
-	trimChars := " {}"
+	trimChars := "{}"
 
 	r.Series = strings.Trim(t.Tags["series"], trimChars)
 	r.Number = strings.Trim(t.Tags["number"], trimChars)
