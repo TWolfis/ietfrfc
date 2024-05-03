@@ -11,7 +11,7 @@ func TestRfc(t *testing.T) {
 	rfcNumber := 10
 
 	// Test if RFC can be fetched
-	rfc, err := ietfrfc.GetRFC(rfcNumber)
+	rfc, err := ietfrfc.Get(rfcNumber)
 	if err != nil {
 		t.Error(err)
 	}
@@ -22,16 +22,17 @@ func TestRfc(t *testing.T) {
 	}
 
 	// Test if RFC Title equals OSPF Version 2
-	if rfc.Title != "OSPF Version 2" {
-		t.Errorf("RFC title is incorrect, expected OSPF Version 2, got %s", rfc.Title)
+	x := "OSPF Version 2"
+	if rfc.Title != x {
+		t.Errorf("RFC title is incorrect, expected OSPF Version 2, got %v", rfc.Title)
 	}
 }
 
-func ExampleGetRFC() {
+func ExampleGet() {
 	rfcNumber := 2328
 
-	// Get RFC
-	rfc, err := ietfrfc.GetRFC(rfcNumber)
+	// Get
+	rfc, err := ietfrfc.Get(rfcNumber)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -1,125 +1,144 @@
 package ietfrfc
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/caltechlibrary/bibtex"
+	"github.com/pkg/errors"
 )
 
 /*
 Download IETF RFCs and their metadata
 */
 
-const (
+var (
 	// URL pointing towards the RFC document
-	rfcURL = "https://www.rfc-editor.org/rfc/rfc"
+	rfcURL = "https://www.rfc-editor.org/rfc/"
 	// URL pointing towards the RFC metadata document
-	refURL = "https://www.rfc-editor.org/refs/ref"
+	refURL = "https://datatracker.ietf.org/doc/"
 )
 
 // rfc holds the text body of the requested RFC and the metadata concerning the RFC
 type RFC struct {
-	Body     string
-	Title    string
-	Authors  string
-	Metadata string
+	Series       string `json:"series,omitempty"`
+	Number       string `json:"number,omitempty"`
+	Howpublished string `json:"howpublished,omitempty"`
+	Publisher    string `json:"publisher,omitempty"`
+	Doi          string `json:"doi,omitempty"`
+	URL          string `json:"url,omitempty"`
+	Author       string `json:"author,omitempty"`
+	Title        string `json:"title,omitempty"`
+	Pagetotal    string `json:"pagetotal,omitempty"`
+	Year         string `json:"year,omitempty"`
+	Month        string `json:"month,omitempty"`
+	Day          string `json:"day,omitempty"`
+	Abstract     string `json:"abstract,omitempty"`
+	Body         string `json:"body,omitempty"`
 }
 
 // GetRFC fetches the RFC and RFC Metadata by number
-func GetRFC(rfcNumber int) (RFC, error) {
-
-	if rfcNumber < 1 {
-		return RFC{}, fmt.Errorf("RFC number must be greater than 0")
-	}
-
+func Get(Number int) (*RFC, error) {
 	rfc := RFC{}
-	err := rfc.getR(rfcNumber)
-	if err != nil {
-		return rfc, err
+	if Number < 1 {
+		return &rfc, errors.New("RFC number must be greater than 0")
 	}
 
-	err = rfc.getRef(rfcNumber)
-	if err != nil {
-		return rfc, err
+	c1 := make(chan error)
+	c2 := make(chan error)
+
+	go rfc.getRFC(Number, c1)
+	go rfc.getRef(Number, c2)
+
+	for i := 0; i < 2; i++ {
+		select {
+		case err := <-c1:
+			if err != nil {
+				return &rfc, err
+			}
+		case err := <-c2:
+			if err != nil {
+				return &rfc, err
+			}
+		}
 	}
 
-	return rfc, nil
+	return &rfc, nil
 }
 
-// getR fetches the RFC
-func (r *RFC) getR(rfcNumber int) error {
+// getRFC fetches the RFC by Number
+func (r *RFC) getRFC(Number int, c chan error) {
 	// Example: https://www.rfc-editor.org/rfc/rfc791.txt
-	rurl := fmt.Sprintf("%s%d.txt", rfcURL, rfcNumber)
+	rfcURL = fmt.Sprintf("%srfc%d.txt", rfcURL, Number)
 
 	// Get rfc Body
-	resp, err := http.Get(rurl)
+	resp, err := http.Get(rfcURL)
 	if err != nil {
-		return err
+		c <- err
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		c <- err
 	}
 
 	r.Body = string(body)
 
-	return nil
+	c <- nil
 }
 
 // getRef fetches the RFC Metadata
-func (r *RFC) getRef(rfcNumber int) error {
-	var rNum string
-	// if the rfcNumber is less than 1000 and bigger than 100, add a leading 0
-	if rfcNumber >= 100 && rfcNumber < 1000 {
-		rNum = fmt.Sprintf("0%d", rfcNumber)
-	} else if rfcNumber >= 10 && rfcNumber < 100 {
-		rNum = fmt.Sprintf("00%d", rfcNumber)
-	} else if rfcNumber < 10 && rfcNumber > 0 {
-		rNum = fmt.Sprintf("000%d", rfcNumber)
-	} else {
-		rNum = fmt.Sprintf("%d", rfcNumber) // if the rfcNumber is bigger than 1000, just add it as is.
-	}
+func (r *RFC) getRef(Number int, c chan error) {
+	refURL = fmt.Sprintf("%srfc%d/bibtex/", refURL, Number)
 
-	// Example: "https://www.rfc-editor.org/refs/ref1945.txt"
-	refurl := fmt.Sprintf("%s%s.txt", refURL, rNum)
-	fmt.Println(refurl)
-	// Get metadata
-	resp, err := http.Get(refurl)
+	resp, err := http.Get(refURL)
 	if err != nil {
-		return err
+		c <- err
 	}
 
 	defer resp.Body.Close()
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		c <- err
 	}
 
-	rfcInfo := string(body)
-	r.Metadata = rfcInfo
+	bt, err := bibtex.Parse(body)
+	if err != nil {
+		c <- err
+	}
 
-	// Split the string based on the " character
-	splitInfo := strings.Split(rfcInfo, "\"")
+	// Get first element from parser and from there extract the tags
+	t := bt[0]
 
-	// The first element is the author(s) and the second is the title of the RFC
-	r.Authors = splitInfo[0]
-	r.Title = splitInfo[1]
+	// set chars to trim
+	trimChars := " {}"
 
-	return nil
-}
+	r.Series = strings.Trim(t.Tags["series"], trimChars)
+	r.Number = strings.Trim(t.Tags["number"], trimChars)
+	r.Howpublished = strings.Trim(t.Tags["howpublished"], trimChars)
+	r.Publisher = strings.Trim(t.Tags["publisher"], trimChars)
+	r.Doi = strings.Trim(t.Tags["doi"], trimChars)
+	r.URL = strings.Trim(t.Tags["url"], trimChars)
+	r.Author = strings.Trim(t.Tags["author"], trimChars)
+	r.Title = strings.Trim(t.Tags["title"], trimChars)
+	r.Pagetotal = strings.Trim(t.Tags["pagetotal"], trimChars)
+	r.Year = strings.Trim(t.Tags["year"], trimChars)
+	r.Month = strings.Trim(t.Tags["month"], trimChars)
+	r.Day = strings.Trim(t.Tags["day"], trimChars)
+	r.Abstract = strings.Trim(t.Tags["abstract"], trimChars)
 
-// GetReference, prints out the title, publication date and author(s) of the RFC
-func (r *RFC) GetReference() {
-	fmt.Println("Title:", r.Title)
-	fmt.Println("Authors:", r.Authors)
-	fmt.Println("Publication information:", r.Metadata)
-	fmt.Println()
+	c <- nil
 }
 
 // String prints out the RFC Body
 func (r *RFC) String() string {
-	return fmt.Sprintln(r.Body)
+	jsonData, _ := json.MarshalIndent(r, "", "  ") // Use "  " for two space indentation
+
+	// Print the pretty-printed JSON
+	return string(jsonData)
 }
