@@ -24,7 +24,7 @@ func TestRfc(t *testing.T) {
 	// Test if RFC Title equals OSPF Version 2
 	x := "OSPF Version 2"
 	if rfc.Title != x {
-		t.Errorf("RFC title is incorrect, expected OSPF Version 2, got %v", rfc.Title)
+		t.Errorf("RFC title is incorrect, expected %v, got %v", x, rfc.Title)
 	}
 }
 
