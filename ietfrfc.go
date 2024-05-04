@@ -93,9 +93,8 @@ func (r *RFC) getRFC(Number int, c chan error) {
 
 // getRef fetches the RFC Metadata
 func (r *RFC) getRef(Number int, c chan error) {
-	refURL = fmt.Sprintf("%srfc%d/bibtex/", refURL, Number)
-
-	resp, err := http.Get(refURL)
+	url := fmt.Sprintf("%srfc%d/bibtex/", refURL, Number)
+	resp, err := http.Get(url)
 	if err != nil {
 		c <- err
 	}
