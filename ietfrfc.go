@@ -113,6 +113,9 @@ func (r *RFC) getRef(Number int, c chan error) {
 	}
 
 	// Get first element from parser and from there extract the tags
+	if len(bt) < 1 {
+		c <- errors.New("no tags found")
+	}
 	t := bt[0]
 
 	// set chars to trim
