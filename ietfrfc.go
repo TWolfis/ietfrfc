@@ -15,13 +15,6 @@ import (
 Download IETF RFCs and their metadata
 */
 
-var (
-	// URL pointing towards the RFC document
-	rfcURL = "https://www.rfc-editor.org/rfc/"
-	// URL pointing towards the RFC metadata document
-	refURL = "https://datatracker.ietf.org/doc/"
-)
-
 // rfc holds the text body of the requested RFC and the metadata concerning the RFC
 type RFC struct {
 	Series       string `json:"series,omitempty"`
@@ -72,7 +65,7 @@ func Get(Number int) (*RFC, error) {
 // getRFC fetches the RFC by Number
 func (r *RFC) getRFC(Number int, c chan error) {
 	// Example: https://www.rfc-editor.org/rfc/rfc791.txt
-	rfcURL = fmt.Sprintf("%srfc%d.txt", rfcURL, Number)
+	rfcURL := fmt.Sprintf("https://www.rfc-editor.org/rfc/rfc%d.txt", Number)
 
 	// Get rfc Body
 	resp, err := http.Get(rfcURL)
@@ -93,8 +86,8 @@ func (r *RFC) getRFC(Number int, c chan error) {
 
 // getRef fetches the RFC Metadata
 func (r *RFC) getRef(Number int, c chan error) {
-	url := fmt.Sprintf("%srfc%d/bibtex/", refURL, Number)
-	resp, err := http.Get(url)
+	refURL := fmt.Sprintf("https://datatracker.ietf.org/doc/rfc%d/bibtex/", Number)
+	resp, err := http.Get(refURL)
 	if err != nil {
 		c <- err
 	}
