@@ -4,8 +4,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
-	"math/rand/v2"
+	"os"
 
 	"github.com/TWolfis/ietfrfc"
 )
@@ -15,16 +14,13 @@ var (
 )
 
 func main() {
-	flag.IntVar(&n, "n", 0, "rfc number")
+	flag.IntVar(&n, "num", 1, "rfc number to fetch")
 	flag.Parse()
-
-	if n == 0 {
-		n = rand.IntN(10000)
-	}
 
 	rfc, err := ietfrfc.Get(n)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
+		os.Exit(0)
 	}
 
 	fmt.Println(rfc)
